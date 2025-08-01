@@ -20,6 +20,56 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+
+
+
+// ======================================================================
+// KONFIGURASI UPDATER OTOMATIS - VERSI BARU
+// ======================================================================
+
+// URL dasar menuju API di situs repository Anda.
+// Cukup ganti domain jika perlu, sisanya biarkan sama.
+$my_repo_base_url = 'https://repo.budiharyono.id/wp-json/mm-repo/v1/info/';
+
+// ======================================================================
+// KODE PEMANGGIL UPDATER - JANGAN UBAH BAGIAN DI BAWAH INI
+// ======================================================================
+
+// Pastikan fungsi get_plugin_data sudah ada.
+if (!function_exists('get_plugin_data')) {
+    require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+}
+
+// 1. Ambil slug plugin secara dinamis dari 'Text Domain' di header.
+$plugin_data = get_plugin_data(__FILE__);
+$my_plugin_slug = $plugin_data['TextDomain'];
+
+// 2. Buat URL API lengkap secara dinamis.
+$my_plugin_api_url = $my_repo_base_url . $my_plugin_slug;
+
+// 3. Muat pustaka updater.
+require_once __DIR__ . '/lib/updater.php';
+
+// 4. Daftarkan hook aktivasi.
+register_activation_hook(__FILE__, ['My_Plugin_Updater_Library', 'on_activation']);
+
+// 5. Inisialisasi updater jika di area admin.
+if (is_admin()) {
+    new My_Plugin_Updater_Library(__FILE__, $my_plugin_slug, $my_plugin_api_url);
+}
+
+// ----------------------------------------------------------------------
+//
+// Tempatkan kode fungsional plugin Anda di sini...
+//
+// ----------------------------------------------------------------------
+
+
+//---------------------------------------
+// PLUGIN Start
+//---------------------------------------
+
+
 // Mendefinisikan konstanta plugin
 define('MMCBG_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
